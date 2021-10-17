@@ -1,34 +1,11 @@
 require("dotenv").config();
 const fs = require("fs");
 const { Client, Collection, Intents } = require("discord.js");
-const Sequelize = require("sequelize");
+const { Server } = require("./src/dbObjects");
 
 const config = require("./config.json");
 
 const TOKEN = process.env.TOKEN;
-
-const sequelize = new Sequelize("sqlite:./db/server.db", {
-    logging: false,
-});
-
-const Servers = sequelize.define(
-    "servers",
-    {
-        server_id: {
-            type: Sequelize.STRING,
-            primaryKey: true,
-        },
-        server_name: Sequelize.STRING,
-        channel: {
-            type: Sequelize.STRING,
-            defaultValue: null,
-        },
-    },
-    {
-        createdAt: false,
-        updatedAt: false,
-    }
-);
 
 // Create a new client instance
 const client = new Client({
@@ -52,7 +29,6 @@ for (const file of commandFiles) {
 // When the client is ready, run this code (only once)
 client.once("ready", () => {
     console.log("Ready!");
-    Servers.sync({ alter: true });
     add_server();
 });
 
@@ -64,40 +40,33 @@ client.on("messageCreate", (message) => {
         .split(" ");
     const command = client.commands.find((cmd) => opr === cmd.name);
 
-    if (opr === "server") {
-        // const
-        getAll();
-    } else {
-        if (!command) return message.reply(`\`${opr}\` is not a valid command`);
+    // setTimeout(() => {
+    //     if (!message.deleted) message.delete();
+    // }, 5000);
 
-        command.execute(message, args, client);
-    }
+    if (!command) return message.reply(`\`${opr}\` is not a valid command`);
+
+    command.execute(message, args, client);
 });
 
 async function add_server() {
     const all = await client.guilds.fetch();
     all.each(async (guild) => {
-        const found = await Servers.findOne({ where: { server_id: guild.id } });
-        if (found !== null) return;
-        Servers.create({
+        Server.upsert({
             server_id: guild.id,
             server_name: guild.name,
         }).catch((error) => {
             console.log(error.name);
         });
-        // if (error.name === 'SequelizeUniqueConstraintError') {
-        //     return console.log('Server already existed')
-        // }
-        // return console.log('Something went wrong with adding a server.');
     });
 }
 
-async function getAll() {
-    const all = await Servers.findAll();
-    all.forEach((element) => {
-        console.log(element.dataValues);
-    });
-}
+// async function getAll() {
+//     const all = await Servers.findAll();
+//     all.forEach((element) => {
+//         console.log(element.dataValues);
+//     });
+// }
 
 // Login to Discord with your client's token
 client.login(TOKEN);
