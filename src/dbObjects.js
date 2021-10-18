@@ -5,5 +5,11 @@ const sequelize = new Sequelize("sqlite:./db/server.db", {
 });
 
 const Server = require("./definitions/Server")(sequelize, Sequelize.DataTypes);
+const Channel = require("./definitions/Channel")(
+    sequelize,
+    Sequelize.DataTypes
+);
 
-module.exports = { Server };
+Channel.belongsTo(Server, { foreignKey: "server_fk", as: "server_id" });
+
+module.exports = { Server, Channel };
