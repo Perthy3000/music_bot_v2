@@ -1,2 +1,2 @@
 release: npm run setup
-web: npm start
+worker: npm start
