@@ -7,6 +7,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
+        "setup": "node src/dbInit.js",
         "start": "node index.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },

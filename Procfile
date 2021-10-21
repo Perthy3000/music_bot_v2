@@ -1,3 +1,2 @@
-release: node src/dbInit.js
+release: npm run setup
 web: npm start
-worker: npm start
