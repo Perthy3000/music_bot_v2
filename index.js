@@ -1,9 +1,16 @@
 require("dotenv").config();
 const fs = require("fs");
 const { Client, Collection, Intents } = require("discord.js");
-const { Server } = require("./src/dbObjects");
+const { Server, Channel } = require("./src/dbObjects");
 
 const config = require("./config.json");
+const {
+    addSong,
+    playPause,
+    skip,
+    stop,
+    loop,
+} = require("./src/functions/addSong");
 
 const TOKEN = process.env.TOKEN;
 
@@ -32,8 +39,16 @@ client.once("ready", () => {
     add_server();
 });
 
-client.on("messageCreate", (message) => {
-    if (!message.content.startsWith(config.prefix)) return;
+client.on("messageCreate", async (message) => {
+    if (message.author.bot) return;
+    if (!message.content.startsWith(config.prefix)) {
+        const foundChannel = await registeredChannel(message);
+        if (foundChannel) {
+            addSong(message, foundChannel);
+            return message.delete();
+        }
+        return;
+    }
 
     const [opr, ...args] = message.content
         .substring(config.prefix.length)
@@ -49,6 +64,20 @@ client.on("messageCreate", (message) => {
     command.execute(message, args, client);
 });
 
+client.on("interactionCreate", (interaction) => {
+    if (!interaction.isButton()) return;
+
+    if (interaction.customId === "playpause") {
+        playPause(interaction);
+    } else if (interaction.customId === "skip") {
+        skip(interaction);
+    } else if (interaction.customId === "stop") {
+        stop(interaction);
+    } else if (interaction.customId === "loop") {
+        loop(interaction);
+    }
+});
+
 async function add_server() {
     const all = await client.guilds.fetch();
     all.each(async (guild) => {
@@ -59,6 +88,12 @@ async function add_server() {
             console.log(error.name);
         });
     });
+}
+
+async function registeredChannel(message) {
+    const channelId = message.channelId;
+    const found = await Channel.findOne({ where: { channel_id: channelId } });
+    return found;
 }
 
 // async function getAll() {

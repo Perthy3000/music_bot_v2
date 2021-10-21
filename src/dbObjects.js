@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
 
-const sequelize = new Sequelize("sqlite:./db/server.db", {
+const sequelize = new Sequelize("sqlite:./server.db", {
     logging: false,
 });
 

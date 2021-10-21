@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 const fs = require("fs");
 const path = require("path");
 
-const sequelize = new Sequelize("sqlite:./db/server.db", {
+const sequelize = new Sequelize("sqlite:./server.db", {
     logging: false,
 });
 
