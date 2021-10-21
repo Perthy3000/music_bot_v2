@@ -1,0 +1,1 @@
+release: node src/dbInit.js
