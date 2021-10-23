@@ -1,7 +1,10 @@
 require("dotenv").config();
 const fs = require("fs");
 const { Client, Collection, Intents } = require("discord.js");
-const { Server, Channel } = require("./src/dbObjects");
+const ServerModel = require("./src/models/Server");
+const ChannelModel = require("./src/models/Channel");
+const { connectDb } = require("./src/dbConnect");
+connectDb();
 
 const config = require("./config.json");
 const {
@@ -81,27 +84,21 @@ client.on("interactionCreate", (interaction) => {
 async function add_server() {
     const all = await client.guilds.fetch();
     all.each(async (guild) => {
-        Server.upsert({
-            server_id: guild.id,
-            server_name: guild.name,
-        }).catch((error) => {
-            console.log(error.name);
-        });
+        const founded = await ServerModel.findOne({ server_id: guild.id });
+        if (!founded) {
+            ServerModel.create({
+                server_id: guild.id,
+                server_name: guild.name,
+            });
+        }
     });
 }
 
 async function registeredChannel(message) {
     const channelId = message.channelId;
-    const found = await Channel.findOne({ where: { channel_id: channelId } });
+    const found = await ChannelModel.findOne({ channel_id: channelId });
     return found;
 }
-
-// async function getAll() {
-//     const all = await Servers.findAll();
-//     all.forEach((element) => {
-//         console.log(element.dataValues);
-//     });
-// }
 
 // Login to Discord with your client's token
 client.login(TOKEN);

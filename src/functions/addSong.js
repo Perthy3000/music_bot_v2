@@ -104,7 +104,7 @@ async function addSong(message, foundChannel) {
                         connection,
                         player,
                         message,
-                        foundChannel.dataValues.message_id
+                        foundChannel.message_id
                     );
                     console.log("Voice disconnected");
                 }
@@ -113,11 +113,7 @@ async function addSong(message, foundChannel) {
 
         player.on(AudioPlayerStatus.Idle, () => {
             if (!queueConstructor.loop) queueConstructor.songs.shift();
-            updateMessage(
-                message,
-                foundChannel.dataValues.message_id,
-                queueConstructor
-            );
+            updateMessage(message, foundChannel.message_id, queueConstructor);
             if (queueConstructor.songs.length > 0) {
                 const song = queueConstructor.songs[0];
                 const resource = createAudioResource(song.url);
@@ -130,7 +126,7 @@ async function addSong(message, foundChannel) {
                             connection,
                             player,
                             message,
-                            foundChannel.dataValues.message_id
+                            foundChannel.message_id
                         );
                     } catch (err) {
                         console.log(err);
@@ -155,22 +151,14 @@ async function addSong(message, foundChannel) {
             thumbnail: song.thumbnail,
         });
 
-        updateMessage(
-            message,
-            foundChannel.dataValues.message_id,
-            queueConstructor
-        );
+        updateMessage(message, foundChannel.message_id, queueConstructor);
     } else {
         server_queue.songs.push({
             title: song.title,
             url: song.url,
             thumbnail: song.thumbnail,
         });
-        updateMessage(
-            message,
-            foundChannel.dataValues.message_id,
-            server_queue
-        );
+        updateMessage(message, foundChannel.message_id, server_queue);
 
         const player = server_queue.player;
         if (player.state.status == "idle") {

@@ -1,4 +1,4 @@
-const { Channel } = require("../dbObjects");
+const ChannelModel = require("../models/Channel");
 const { MessageEmbed, MessageActionRow, MessageButton } = require("discord.js");
 
 const startup_embeds = new MessageEmbed()
@@ -50,12 +50,17 @@ module.exports = {
             embeds: [startup_embeds],
             components: [row],
         });
-        Channel.upsert({
-            server_fk: message.guild.id,
-            channel_id: channel.id,
-            channel_name: channel.name,
-            message_id: main_message.id,
-        }).catch((err) => console.log(err));
+        ChannelModel.create(
+            {
+                server_fk: message.guild.id,
+                channel_id: channel.id,
+                channel_name: channel.name,
+                message_id: main_message.id,
+            },
+            (err) => {
+                if (err) console.log(err);
+            }
+        );
 
         message.reply(`Setup channel successful`);
     },
