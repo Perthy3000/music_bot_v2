@@ -112,7 +112,8 @@ async function addSong(message, foundChannel) {
         );
 
         player.on(AudioPlayerStatus.Idle, () => {
-            if (!queueConstructor.loop) queueConstructor.songs.shift();
+            var currentSong = queueConstructor.songs.shift();
+            if (queueConstructor.loop) queueConstructor.songs.push(currentSong);
             updateMessage(message, foundChannel.message_id, queueConstructor);
             if (queueConstructor.songs.length > 0) {
                 const song = queueConstructor.songs[0];
@@ -131,7 +132,7 @@ async function addSong(message, foundChannel) {
                     } catch (err) {
                         console.log(err);
                     }
-                }, 30000);
+                }, 5 * 60 * 1000);
             }
         });
 
