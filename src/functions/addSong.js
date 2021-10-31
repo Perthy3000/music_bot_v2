@@ -76,7 +76,12 @@ async function addSong(message, foundChannel) {
             adapterCreator: channel.guild.voiceAdapterCreator,
         });
         const player = createAudioPlayer();
-        const resource = createAudioResource(song.url);
+        var resource;
+        if (song.entries) {
+            resource = createAudioResource(song.entries[0].url);
+        } else {
+            resource = createAudioResource(song.url);
+        }
         player.play(resource);
 
         connection.subscribe(player);
@@ -146,24 +151,44 @@ async function addSong(message, foundChannel) {
 
         queueConstructor.voiceChannel = channel;
         queueConstructor.player = player;
-        queueConstructor.songs.push({
-            title: song.title,
-            url: song.url,
-            thumbnail: song.thumbnail,
-        });
+        if (song.entries) {
+            song.entries.forEach((element) => {
+                queueConstructor.songs.push({
+                    title: element.title,
+                    url: element.url,
+                    thumbnail: element.thumbnail,
+                });
+            });
+        } else {
+            queueConstructor.songs.push({
+                title: song.title,
+                url: song.url,
+                thumbnail: song.thumbnail,
+            });
+        }
 
         updateMessage(message, foundChannel.message_id, queueConstructor);
     } else {
-        server_queue.songs.push({
-            title: song.title,
-            url: song.url,
-            thumbnail: song.thumbnail,
-        });
+        if (song.entries) {
+            song.entries.forEach((element) => {
+                server_queue.songs.push({
+                    title: element.title,
+                    url: element.url,
+                    thumbnail: element.thumbnail,
+                });
+            });
+        } else {
+            server_queue.songs.push({
+                title: song.title,
+                url: song.url,
+                thumbnail: song.thumbnail,
+            });
+        }
         updateMessage(message, foundChannel.message_id, server_queue);
 
         const player = server_queue.player;
         if (player.state.status == "idle") {
-            const resource = createAudioResource(song.url);
+            const resource = createAudioResource(server_queue.songs[0].url);
             player.play(resource);
         }
     }
@@ -251,7 +276,14 @@ async function updateMessage(message, messageId, queueConstructor) {
             .setTimestamp()
             .setFooter("Toppiiz © 2021 อิอิ");
         var editedContent = startupContent;
-        for (var i = queueConstructor.songs.length - 1; i > 0; i--) {
+        for (
+            var i =
+                queueConstructor.songs.length > 10
+                    ? 10 - 1
+                    : queueConstructor.songs.length - 1;
+            i > 0;
+            i--
+        ) {
             editedContent +=
                 "\n" + `\`${i}.\` **${queueConstructor.songs[i].title}**`;
         }

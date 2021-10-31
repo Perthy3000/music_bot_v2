@@ -47,8 +47,14 @@ client.on("messageCreate", async (message) => {
     if (!message.content.startsWith(config.prefix)) {
         const foundChannel = await registeredChannel(message);
         if (foundChannel) {
-            addSong(message, foundChannel);
-            return message.delete();
+            const waiting = await message.reply(
+                `Please wait. Now adding song(s)`
+            );
+            addSong(message, foundChannel).then(() => {
+                message.delete();
+                waiting.delete();
+            });
+            return;
         }
         return;
     }
