@@ -4,6 +4,7 @@ const { Client, Collection, Intents } = require("discord.js");
 const ServerModel = require("./src/models/Server");
 const ChannelModel = require("./src/models/Channel");
 const { connectDb } = require("./src/dbConnect");
+const Player = require("./src/utils/Player");
 connectDb();
 
 const config = require("./config.json");
@@ -26,7 +27,15 @@ const client = new Client({
     ],
 });
 
+const player = new Player(client, {
+    ytdlOptions: {
+        quality: "highestaudio",
+        highWaterMark: 1 << 25,
+    },
+});
+
 client.commands = new Collection();
+client.player = player;
 
 const commandFiles = fs
     .readdirSync("./src/commands")

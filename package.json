@@ -9,6 +9,7 @@
     "scripts": {
         "setup": "node src/dbInit.js",
         "start": "node index.js",
+        "start-dev": "nodemon index.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",
@@ -16,6 +17,7 @@
     "dependencies": {
         "@discordjs/opus": "^0.5.3",
         "@discordjs/voice": "^0.6.0",
+        "discord-player": "^5.1.0",
         "discord.js": "^13.1.0",
         "dotenv": "^10.0.0",
         "libsodium-wrappers": "^0.7.9",
