@@ -5,16 +5,17 @@ const ServerModel = require("./src/models/Server");
 const ChannelModel = require("./src/models/Channel");
 const { connectDb } = require("./src/dbConnect");
 const Player = require("./src/utils/Player");
+const registerEvent = require("./src/functions/playerEvent");
 connectDb();
 
 const config = require("./config.json");
+const play = require("./src/functions/play");
 const {
-    addSong,
-    playPause,
+    resumePause,
     skip,
     stop,
     loop,
-} = require("./src/functions/addSong");
+} = require("./src/functions/buttonInteraction");
 
 const TOKEN = process.env.TOKEN;
 
@@ -36,6 +37,8 @@ const player = new Player(client, {
 
 client.commands = new Collection();
 client.player = player;
+
+registerEvent(player);
 
 const commandFiles = fs
     .readdirSync("./src/commands")
@@ -59,9 +62,18 @@ client.on("messageCreate", async (message) => {
             const waiting = await message.reply(
                 `Please wait. Now adding song(s)`
             );
-            addSong(message, foundChannel).then(() => {
+            // addSong(message, foundChannel).then(() => {
+            //     message.delete();
+            //     waiting.delete();
+            // });
+            play(message, client, foundChannel).then((reply) => {
                 message.delete();
                 waiting.delete();
+                if (reply) {
+                    setTimeout(() => {
+                        reply.delete();
+                    }, 5000);
+                }
             });
             return;
         }
@@ -86,13 +98,13 @@ client.on("interactionCreate", (interaction) => {
     if (!interaction.isButton()) return;
 
     if (interaction.customId === "playpause") {
-        playPause(interaction);
+        resumePause(interaction, client);
     } else if (interaction.customId === "skip") {
-        skip(interaction);
+        skip(interaction, client);
     } else if (interaction.customId === "stop") {
-        stop(interaction);
+        stop(interaction, client);
     } else if (interaction.customId === "loop") {
-        loop(interaction);
+        loop(interaction, client);
     }
 });
 

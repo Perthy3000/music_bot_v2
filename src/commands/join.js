@@ -23,8 +23,9 @@ module.exports = {
                 },
             });
         }
-        queue.join(channel);
-        queue.addTrack(new Track("hello", "world", "alabama"));
+        // queue.join(channel);
+        // queue.addTrack(new Track("hello", "world", "alabama"));
+
         // const connection = joinVoiceChannel({
         //     channelId: channel.id,
         //     guildId: channel.guildId,
