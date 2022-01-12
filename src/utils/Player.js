@@ -22,6 +22,11 @@ const ydl_opts = {
     skipDownload: true,
 };
 
+const vid_regex = {
+    youtubeVid: /^((?:https?:)\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))((?!channel)(?!user)\/(?:[\w\-]+\?v=|embed\/|v\/)?)((?!channel)(?!user)[\w\-]+)(((.*(\?|\&)t=(\d+))(\D?|\S+?))|\D?|\S+?)$/,
+    youtubePlaylist: /^((?:https?:)\/\/)?((?:www|m)\.)?((?:youtube\.com)).*(youtu.be\/|list=)([^#&?]*).*/
+}
+
 module.exports = class Player extends EventEmitter {
     queues = new Collection();
 
@@ -47,9 +52,11 @@ module.exports = class Player extends EventEmitter {
     }
 
     search(content) {
-        // let vidURL;
-        if (content.includes("http") || content.includes("www")) {
-            // vidURL = content;
+        let youtubeLink = vid_regex.youtubeVid.test(content)
+        let playlistLink = vid_regex.youtubePlaylist.test(content)
+        if (youtubeLink) {
+            return youtubedl(content, ydl_opts);
+        } else if(playlistLink) {
             return youtubedl(content, ydl_opts);
         } else {
             return yts(content).then((searchResults) => {
@@ -58,12 +65,6 @@ module.exports = class Player extends EventEmitter {
                     if (vidURL) return youtubedl(vidURL, ydl_opts);
                 }
             });
-            // const searchResults = await yts(content);
-            // if (searchResults.videos.length > 0) {
-            //     vidURL = searchResults.videos[0].url;
-            // }
         }
-        // if (!vidURL) return null;
-        // return await youtubedl(vidURL, ydl_opts);
     }
 };

@@ -51,7 +51,13 @@ module.exports = async function play(message, client, foundChannel) {
                 content: `❌ | Track **${query}** not found!`,
             });
 
-        queue.addTrack(searchResult);
+        if(searchResult.entries) {
+            queue.addTrack(searchResult.entries.map(el => {
+                return {title: el.title, url: el.url, thumbnail: el.thumbnail}
+            }))
+        } else {
+            queue.addTrack(searchResult);
+        }
 
         if (queue.audioPlayer.state.status == "idle") queue.play();
     });

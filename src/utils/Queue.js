@@ -42,8 +42,8 @@ module.exports = class Queue {
             this.tracks = this.tracks.concat(track);
         } else {
             this.tracks.push(track);
-            this.player.emit("trackUpdate", this);
         }
+        this.player.emit("trackUpdate", this);
     }
 
     play() {
